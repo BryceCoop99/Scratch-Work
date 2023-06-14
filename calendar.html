@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Calendar Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .calendar-container {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .calendar {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .calendar .day {
+      width: 14.28%;
+      padding: 5px;
+      text-align: center;
+    }
+
+    .calendar .day:hover {
+      background-color: #f2f2f2;
+      cursor: pointer;
+    }
+
+    .calendar .day.selected {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .form-field {
+      margin-bottom: 10px;
+    }
+
+    button[type="submit"] {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="calendar-container">
+    <form onsubmit="submitForm(event)">
+      <div class="calendar" id="calendar"></div>
+      <div class="form-field">
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Create a calendar for the current month
+    function createCalendar() {
+      const calendarElement = document.getElementById('calendar');
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth();
+
+      const firstDay = new Date(currentYear, currentMonth, 1);
+      const lastDay = new Date(currentYear, currentMonth + 1, 0);
+      const daysInMonth = lastDay.getDate();
+
+      let calendarHTML = '';
+
+      // Generate the calendar days
+      for (let i = 1; i <= daysInMonth; i++) {
+        const currentDate = new Date(currentYear, currentMonth, i);
+        const dayOfWeek = currentDate.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const dayClass = isWeekend ? 'day weekend' : 'day';
+
+        calendarHTML += `<div class="${dayClass}" onclick="selectDate(${i})">${i}</div>`;
+      }
+
+      calendarElement.innerHTML = calendarHTML;
+    }
+
+    // Select a date
+    function selectDate(day) {
+      const selectedDay = document.querySelector('.day.selected');
+
+      if (selectedDay) {
+        selectedDay.classList.remove('selected');
+      }
+
+      const clickedDay = document.getElementById(`day-${day}`);
+      clickedDay.classList.add('selected');
+    }
+
+    // Submit the form
+    function submitForm(event) {
+      event.preventDefault();
+
+      const selectedDay = document.querySelector('.day.selected');
+      const selectedDate = selectedDay ? selectedDay.innerText : 'No date selected';
+
+      alert(`Selected Date: ${selectedDate}`);
+    }
+
+    // Generate the calendar when the page loads
+    window.addEventListener('DOMContentLoaded', createCalendar);
+  </script>
+</body>
+</html>
