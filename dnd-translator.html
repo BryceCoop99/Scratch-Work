@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Alphabet Translator</title>
+    <script>
+        function translateToCustomAlphabet() {
+            var inputText = document.getElementById('inputText').value;
+            var customAlphabet = {
+                'A': 'ᚥ', 'B': 'ᚧ', 'C': 'ᚩ', 'D': 'ᛣ', 'E': 'ᚫ',
+                'F': 'ᚭ', 'G': 'ᚯ', 'H': 'ᛟ', 'I': 'ᚳ', 'J': 'ᚵ',
+                'K': 'ᚷ', 'L': 'ᚠ', 'M': 'ᚻ', 'N': 'ᚽ', 'O': 'ᚿ',
+                'P': 'ᛈ', 'Q': 'ᛃ', 'R': 'ᛄ', 'S': 'ᛅ', 'T': 'ᛇ',
+                'U': 'ᛉ', 'V': 'ᛋ', 'W': 'ᛍ', 'X': 'ᛏ', 'Y': 'ᛑ',
+                'Z': 'ᛪ'
+            };
+            var outputText = '';
+
+            for (var i = 0; i < inputText.length; i++) {
+                var char = inputText.charAt(i).toUpperCase();
+                outputText += customAlphabet[char] || char;
+            }
+
+            document.getElementById('output').innerText = outputText;
+        }
+    </script>
+</head>
+<body>
+    <h1>Translate Text to Custom Alphabet</h1>
+    <label for="inputText">Enter text:</label>
+    <input type="text" id="inputText">
+    <button onclick="translateToCustomAlphabet()">Translate</button>
+    <h2>Output:</h2>
+    <p id="output"></p>
+</body>
+</html>

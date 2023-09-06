@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NPC Template</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer+SC&family=Lancelot&family=Lexend:wght@100;300;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+          font-family: 'IM Fell Great Primer SC', sans-serif;
+          font-size: 20px;
+          color: #882619;
+          background-image: url('./images/dnd-background.jpg'); /* Replace with your background image URL */
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          margin: 0;
+          padding: 0;
+          line-height: .7;
+        }
+        .stats {
+          min-width: 500px;
+          width: 35%;
+          margin: 10% 0 0 10%;
+          background-color: #fcefdc;
+          border: 1px solid black;
+        }
+        .stats-content {
+          padding: 15px;
+        }
+        h1 {
+            margin: 0 0 10px 0;
+        }
+        h2 {
+          font-size: 18px;
+          cursor: pointer;
+          font-weight: 500;
+        }
+        strong {
+          font-weight: 800;
+        }
+        p {
+          font-size: 18px;
+          color: black;
+          cursor: pointer;
+        }
+        span {
+          text-transform: lowercase;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        table, th, td {
+            text-align: center;
+            padding: 2px;
+            line-height: 1;
+        }
+        .divider {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+            height: 6px;
+            border-radius: 6px;
+            background-color: #9d2c1c;
+            border: none;
+        }
+        .bar {
+          background-color: #e2973c;
+          border-bottom: 1px solid black;
+          height: 10px;
+          margin: 0;
+          padding: 0;
+        }
+    </style>
+    <script>
+        function toggleInput(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                // if (element.tagName.toLowerCase() === 'h2') {
+              const input = document.createElement('input');
+              input.type = 'text';
+              input.style.width = "100%";
+              input.style.padding = "0";
+              input.style.margin = "0";
+              input.value = element.textContent.trim();
+              input.addEventListener('blur', () => {
+                if (input.value === "") {
+                  element.textContent = "None";
+                } {
+                  element.textContent = input.value;
+                }
+              });
+              element.textContent = '';
+              element.appendChild(input);
+              input.focus();
+          }
+        }
+    </script>
+</head>
+<body>
+  <div class="stats">
+    <hr class="bar"/>
+    <div class="stats-content">
+    <h1 id="name" onclick="toggleInput('name')">NPC Name</h1>
+    <p><i id="desc" onclick="toggleInput('desc')">[race], [alignment]</i></p>
+    <hr class="divider">
+    <h2><strong>Armor Class:</strong> <span id="ac" onclick="toggleInput('ac')">[NPC's AC]</span></h2>
+    <h2><strong>Hit Points:</strong> <span id="hp" onclick="toggleInput('hp')">[NPC's HP]</span></h2>
+    <h2><strong>Speed:</strong> <span id="speed" onclick="toggleInput('speed')">[NPC's Speed]</span></h2>
+    <hr class="divider">
+
+    <table class="stats-table">
+      <tr>
+          <th>STR</th>
+          <th>DEX</th>
+          <th>CON</th>
+          <th>INT</th>
+          <th>WIS</th>
+          <th>CHA</th>
+      </tr>
+      <tr>
+          <td id="str" onclick="toggleInput('str')">[STR]</td>
+          <td id="dex" onclick="toggleInput('dex')">[DEX]</td>
+          <td id="con" onclick="toggleInput('con')">[CON]</td>
+          <td id="int" onclick="toggleInput('int')">[INT]</td>
+          <td id="wis" onclick="toggleInput('wis')">[WIS]</td>
+          <td id="cha" onclick="toggleInput('cha')">[CHA]</td>
+      </tr>
+      <tr>
+          <td id="strMod" onclick="toggleInput('strMod')">[+X]</td>
+          <td id="dexMod" onclick="toggleInput('dexMod')">[+X]</td>
+          <td id="conMod" onclick="toggleInput('conMod')">[+X]</td>
+          <td id="intMod" onclick="toggleInput('intMod')">[+X]</td>
+          <td id="wisMod" onclick="toggleInput('wisMod')">[+X]</td>
+          <td id="chaMod" onclick="toggleInput('chaMod')">[+X]</td>
+      </tr>
+  </table>
+  <hr class="divider">
+
+  <h2><strong>Saving Throws:</strong> <span id="savingThrows" onclick="toggleInput('savingThrows')">[List of saving throws and corresponding modifiers]</span></h2>
+  <h2><strong>Skills:</strong> <span id="skills" onclick="toggleInput('skills')">[List of skills and corresponding modifiers]</span></h2>
+  <h2><strong>Damage Immunities:</strong> <span id="damageImmunities" onclick="toggleInput('damageImmunities')">[List of immunities]</span></h2>
+  <h2><strong>Condition Immunities:</strong> <span id="conditionImmunities" onclick="toggleInput('conditionImmunities')">[List of condition immunities]</span></h2>
+  <h2><strong>Senses:</strong> <span id="senses" onclick="toggleInput('senses')">[List of senses, e.g., darkvision, blindsight]</span></h2>
+  <h2><strong>Languages:</strong> <span id="languages" onclick="toggleInput('languages')">[Languages known by the NPC]</span></h2>
+  <h2><strong>Challenge</strong> <span id="cr" onclick="toggleInput('cr')">[NPC's CR]</span></h2>
+
+  <hr class="divider">
+  <h2><strong>Abilities:</strong></h2>
+  <p id="abilities" onclick="toggleInput('abilities')">[Description of the NPC's special abilities]</p>
+  <h2><strong>Actions:</strong></h2>
+  <p id="actions" onclick="toggleInput('actions')">[Description of the NPC's actions and attacks]</p>
+  <h2><strong>Reactions:</strong></h2>
+  <p id="reactions" onclick="toggleInput('reactions')">[Description of the NPC's reactions, if any]</p>
+  <h2><strong>Legendary Actions:</strong></h2>
+  <p id="legendaryActions" onclick="toggleInput('legendaryActions')">[Description of the NPC's legendary actions, if any]</p>
+  <h2><strong>Equipment:</strong></h2>
+  <p id="equipment" onclick="toggleInput('equipment')">[List of equipment and items carried by the NPC]</p>
+  <h2><strong>Description:</strong></h2>
+  <p id="description" onclick="toggleInput('description')">[Physical appearance and personality of the NPC]</p>
+  <h2><strong>Background:</strong></h2>
+  <p id="background" onclick="toggleInput('background')">[Backstory and role of the NPC in the game world]</p>
+
+    </div>
+  </div>
+</body>
+</html>
