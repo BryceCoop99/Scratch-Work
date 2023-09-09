@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import jsPDF from 'jspdf';
 import { fabric } from "fabric";
 import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react";
 import BackgroundImage from '../../assets/background-image.jpg';
+import BackgroundPattern from '../../assets/background-pattern.jpg';
 import "./styles.css";
 
 export default function App() {
@@ -78,16 +80,6 @@ export default function App() {
       return;
     }
 
-    // fabric.Image.fromURL(
-    //   "https://thegraphicsfairy.com/wp-content/uploads/2019/02/Anatomical-Heart-Illustration-Black-GraphicsFairy.jpg",
-    //   (image) => {
-    //     editor.canvas.setBackgroundImage(
-    //       image,
-    //       editor.canvas.renderAll.bind(editor.canvas)
-    //     );
-    //   }
-    // );
-
     editor.canvas.setBackgroundImage(BackgroundImage, editor.canvas.renderAll.bind(editor.canvas));
   };
 
@@ -153,7 +145,44 @@ export default function App() {
   }, [color]);
 
   const toggleDraw = () => {
-    editor.canvas.isDrawingMode = !editor.canvas.isDrawingMode;
+    const texturePatternBrush = new fabric.PatternBrush(editor.canvas);
+    
+    const img = new Image();
+    img.src = BackgroundPattern;
+  
+    img.onload = function () {
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+      
+      // Set canvas size to match image and desired opacity
+      tempCanvas.width = img.width;
+      tempCanvas.height = img.height;
+      tempCtx.globalAlpha = 0.5; // Set opacity
+    
+      // Draw the image onto the temp canvas
+      tempCtx.drawImage(img, 0, 0, img.width, img.height);
+    
+      // Use the temp canvas as the source
+      texturePatternBrush.source = tempCanvas;
+    
+      editor.canvas.freeDrawingBrush = texturePatternBrush;
+      editor.canvas.isDrawingMode = true;
+      editor.canvas.freeDrawingBrush.width = 40;
+      editor.canvas.renderAll(); // Force a re-render
+    };
+  
+    img.onerror = function (err) {
+      console.log("Error loading image:", err); // Debugging
+    };
+
+    return;
+    const pencilBrush = new fabric.PencilBrush(editor.canvas);
+    pencilBrush.color = "#FF0000";  // Color
+    pencilBrush.width = 10;         // Width
+    pencilBrush.opacity = 0.5;      // Opacity
+  
+    editor.canvas.freeDrawingBrush = pencilBrush;
+    editor.canvas.isDrawingMode = true;
   };
   const undo = () => {
     if (editor.canvas._objects.length > 0) {
@@ -166,17 +195,14 @@ export default function App() {
       editor.canvas.add(history.pop());
     }
   };
-
   const clear = () => {
     editor.canvas._objects.splice(0, editor.canvas._objects.length);
     history.splice(0, history.length);
     editor.canvas.renderAll();
   };
-
   const removeSelectedObject = () => {
     editor.canvas.remove(editor.canvas.getActiveObject());
   };
-
   const onAddCircle = () => {
     editor.addCircle();
     // editor.addLine();
@@ -254,7 +280,7 @@ export default function App() {
       console.log(e);
     }
   };
-
+  // Adds an wall (image) to the canvas
   function addWallToCanvas(svgString) {
     return new Promise((resolve, reject) => {
       fabric.loadSVGFromString(svgString, function(results, options) {
@@ -279,7 +305,7 @@ export default function App() {
     });
   }
 
-  const generateMap = async () => {
+  const oldGenerateMap = async () => {
     try {
       const imageUrl = "/wall.svg";
       fetchIMG(imageUrl)
@@ -320,26 +346,84 @@ export default function App() {
     }
   };
   
-  const saveSVG = () => {
-    const json = editor.canvas.toJSON();
-    const jsonString = JSON.stringify(json);
-    console.log(json);
-    console.log(jsonString);
+  const saveMap = () => {
+    const json = JSON.stringify(editor.canvas.toJSON());
+    const jsonData = {
+      svgData: json
+    }
     
-    fetch('http://ec2-13-56-115-177.us-west-1.compute.amazonaws.com:8080/api/hello')
-    .then((response) => response.json())
-    .then((data) => console.log('API Response:', data.message))
-    .catch((error) => console.error('Error:', error));
+    const apiUrl = 'https://ec2-13-56-12-137.us-west-1.compute.amazonaws.com/api/saveMap';
+    async function fetchData() {
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'maps-api-key': '1234MAPS',
+          },
+          body: JSON.stringify(jsonData),
+        });
+    
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(`Server error: ${err.message}`);
+        }
+    
+        const data = await response.json();
+        console.log('Server response:', data.message);
+      } catch (error) {
+        console.error('Client or server error:', { error: error.message });
+      }
+    }
+    fetchData();
   }
-  // const loadSVG = () => {
-  //   const jsonString = /* fetch from your database */
-  //   editor.canvas.loadFromJSON(JSON.parse(jsonString), editor.canvas.renderAll.bind(editor.canvas));
-  // }
+  const getMap = () => {
+    const apiUrl = 'https://ec2-13-56-12-137.us-west-1.compute.amazonaws.com/api/getMap';
+  
+    async function fetchData() {
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'maps-api-key': '1234MAPS',
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        editor.canvas.loadFromJSON(data.jsonData);
+        console.log(data);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    fetchData()
+  }
 
-  const exportSVG = () => {
-    const svg = editor.canvas.toSVG();
-    console.info(svg);
+  const exportAsImage = () => {
+    const dataURL = editor.canvas.toDataURL({
+      format: 'jpg',
+      quality: 1
+    });
+
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'canvas.jpg';
+    document.body.appendChild(link); // Required for Firefox
+    link.click();
+    document.body.removeChild(link); // Cleanup
   };
+  const exportAsPDF = () => { 
+    const dataURL = editor.canvas.toDataURL({
+      format: 'png',
+      quality: 1
+    });
+
+    const pdf = new jsPDF();
+    pdf.addImage(dataURL, 'PNG', 10, 10);
+    pdf.save('canvas.pdf');
+  }
 
   return (
     <div className="App">
@@ -354,7 +438,7 @@ export default function App() {
       <button onClick={addImage} disabled={!cropImage}>
         Add Image
       </button>
-      <button onClick={generateMap} disabled={!cropImage}>
+      <button onClick={oldGenerateMap} disabled={!cropImage}>
         Generate Map
       </button>
       <button onClick={toggleDraw} disabled={!cropImage}>
@@ -384,15 +468,20 @@ export default function App() {
           onChange={(e) => setColor(e.target.value)}
         />
       </label>
-      <button onClick={exportSVG} disabled={!cropImage}>
-        {" "}
-        ToSVG
+      <button onClick={exportAsImage} disabled={!cropImage}>
+        Export as Image
+      </button>
+      <button onClick={exportAsPDF} disabled={!cropImage}>
+        Export as PDF
       </button>
       <button onClick={fromSvg} disabled={!cropImage}>
         fromsvg
       </button>
-      <button onClick={saveSVG} disabled={!cropImage}>
-        Save
+      <button onClick={saveMap} disabled={!cropImage}>
+        Save Map
+      </button>
+      <button onClick={getMap} disabled={!cropImage}>
+        Get Map
       </button>
 
       <div
