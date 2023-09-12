@@ -1,0 +1,68 @@
+import { fabric } from "fabric";
+
+class SquareBrush extends fabric.BaseBrush {
+  constructor(canvas) {
+    super();
+    this.canvas = canvas;
+    this.points = [];
+    this.width = 10;
+  }
+
+  onMouseDown() {
+    this.points.length = 0;
+    this.canvas.clearContext(this.canvas.contextTop);
+  }
+
+  onMouseMove(pointer) {
+    const point = this.addPoint(pointer),
+      ctx = this.canvas.contextTop;
+
+    ctx.fillStyle = point.fill;
+    ctx.fillRect(
+      point.x - point.width / 2,
+      point.y - point.height / 2,
+      point.width,
+      point.height
+    );
+  }
+
+  onMouseUp() {
+    const originalRenderOnAddition = this.canvas.renderOnAddition,
+      group = new fabric.Group();
+
+    this.canvas.renderOnAddition = false;
+
+    for (const point of this.points) {
+      group.add(
+        new fabric.Rect({
+          width: point.width,
+          height: point.height,
+          top: point.y,
+          left: point.x,
+          fill: point.fill,
+        })
+      );
+    }
+
+    this.canvas.add(group);
+    this.canvas.clearContext(this.canvas.contextTop);
+    this.canvas.renderOnAddition = originalRenderOnAddition;
+    this.canvas.renderAll();
+  }
+
+  addPoint(pointer) {
+    const point = new fabric.Point(pointer.x, pointer.y),
+      width = fabric.util.getRandomInt(0, this.width),
+      color = new fabric.Color(this.color)
+        .setAlpha(fabric.util.getRandomInt(0, 100) / 100)
+        .toRgba();
+
+    point.width = point.height = width;
+    point.fill = color;
+
+    this.points.push(point);
+    return point;
+  }
+}
+
+export default SquareBrush;

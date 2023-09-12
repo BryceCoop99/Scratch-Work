@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import jsPDF from 'jspdf';
+import jsPDF from "jspdf";
 import { fabric } from "fabric";
 import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react";
-import BackgroundImage from '../../assets/background-image.jpg';
-import BackgroundPattern from '../../assets/background-pattern.jpg';
+import BackgroundImage from "../../assets/background-image.jpg";
+import BackgroundPattern from "../../assets/stone-ground.png";
+import SquareBrush from "../../brushes/SquareBrush";
 import "./styles.css";
 
 export default function App() {
   const { editor, onReady } = useFabricJSEditor();
+  const [hoverObject, setHoverObject] = useState("snowflake.svg"); // to hold the object you're hovering
+  const [isHovering, setIsHovering] = useState(false);
 
   const history = [];
   const [color, setColor] = useState("#35363a");
@@ -80,7 +83,10 @@ export default function App() {
       return;
     }
 
-    editor.canvas.setBackgroundImage(BackgroundImage, editor.canvas.renderAll.bind(editor.canvas));
+    editor.canvas.setBackgroundImage(
+      BackgroundImage,
+      editor.canvas.renderAll.bind(editor.canvas)
+    );
   };
 
   const fromSvg = () => {
@@ -144,45 +150,77 @@ export default function App() {
     editor.setStrokeColor(color);
   }, [color]);
 
+  // Create a function to handle hover
+  const handleHover = (opt) => {
+    const pointer = editor.canvas.getPointer(opt.e);
+    if (isHovering) {
+      hoverObject.set({ left: pointer.x, top: pointer.y });
+      editor.canvas.renderAll();
+    }
+  };
+
+  // Create a function to handle click
+  const handleClick = (opt) => {
+    hoverObject.clone((clonedObj) => {
+      editor.canvas.add(clonedObj);
+    });
+  };
+
+  // Your useEffect
+  useEffect(() => {
+    if (!editor || !fabric) {
+      return;
+    }
+
+    // Initialize your hover object (this can be an image, a shape, etc.)
+    // setHoverObject();
+
+    // Attach the hover and click event handlers
+    editor.canvas.on("mouse:move", handleHover);
+    editor.canvas.on("mouse:down", handleClick);
+
+    return () => {
+      editor.canvas.off("mouse:move", handleHover);
+      editor.canvas.off("mouse:down", handleClick);
+    };
+  }, [editor, isHovering, hoverObject]);
+
   const toggleDraw = () => {
     const texturePatternBrush = new fabric.PatternBrush(editor.canvas);
-    
+
     const img = new Image();
     img.src = BackgroundPattern;
-  
+
     img.onload = function () {
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d');
-      
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d");
+
       // Set canvas size to match image and desired opacity
       tempCanvas.width = img.width;
       tempCanvas.height = img.height;
-      tempCtx.globalAlpha = 0.5; // Set opacity
-    
+      // tempCtx.globalAlpha = 0.5; // Set opacity
+
       // Draw the image onto the temp canvas
       tempCtx.drawImage(img, 0, 0, img.width, img.height);
-    
+
       // Use the temp canvas as the source
       texturePatternBrush.source = tempCanvas;
-    
+
       editor.canvas.freeDrawingBrush = texturePatternBrush;
       editor.canvas.isDrawingMode = true;
       editor.canvas.freeDrawingBrush.width = 40;
       editor.canvas.renderAll(); // Force a re-render
     };
-  
+
     img.onerror = function (err) {
       console.log("Error loading image:", err); // Debugging
     };
 
-    return;
-    const pencilBrush = new fabric.PencilBrush(editor.canvas);
-    pencilBrush.color = "#FF0000";  // Color
-    pencilBrush.width = 10;         // Width
-    pencilBrush.opacity = 0.5;      // Opacity
-  
-    editor.canvas.freeDrawingBrush = pencilBrush;
-    editor.canvas.isDrawingMode = true;
+    // Using PencilBrush to create a square brush effect
+    // const pencilBrush = new fabric.SquareBrush(editor.canvas);
+
+    // editor.canvas.freeDrawingBrush = pencilBrush;
+    // editor.canvas.isDrawingMode = true;
   };
   const undo = () => {
     if (editor.canvas._objects.length > 0) {
@@ -227,33 +265,34 @@ export default function App() {
     const text = await response.text();
     return text;
   }
-    
+
   const addImage = async () => {
     try {
       const imageUrl = "/wall.svg";
       fetchIMG(imageUrl)
-        .then(svgString => {
+        .then((svgString) => {
           console.log("Fetched SVG:", svgString);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Failed to fetch SVG:", error);
         });
-      const extension = imageUrl.split('.').pop();
-  
+      const extension = imageUrl.split(".").pop();
+
       if (extension === "svg") {
-        var svgString = "<svg width='400px' height='400px' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' version='1.1'> <g><path d='M57.2461,75.0045 C57.2461,75.0045 102.605,89.8415 102.605,89.8415 C102.605,89.8415 55.5504,101.286 55.5504,101.286 C55.5504,101.286 62.7569,89.4175 62.7569,89.4175 C62.7569,89.4175 57.2461,75.0045 57.2461,75.0045 Z' style='stroke:none;fill-rule:evenodd;fill:#fc1997;fill-opacity:1;'/></g></svg>";
+        var svgString =
+          "<svg width='400px' height='400px' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' version='1.1'> <g><path d='M57.2461,75.0045 C57.2461,75.0045 102.605,89.8415 102.605,89.8415 C102.605,89.8415 55.5504,101.286 55.5504,101.286 C55.5504,101.286 62.7569,89.4175 62.7569,89.4175 C62.7569,89.4175 57.2461,75.0045 57.2461,75.0045 Z' style='stroke:none;fill-rule:evenodd;fill:#fc1997;fill-opacity:1;'/></g></svg>";
         svgString = await readSVGFile(imageUrl);
         console.log(svgString);
-        
-        fabric.loadSVGFromString(svgString, function(results, options) {
+
+        fabric.loadSVGFromString(svgString, function (results, options) {
           if (results && results[0]) {
             const svgElement = results[0];
-            
+
             svgElement.set({
-              left: 100,       // X-coordinate position
-              top: 100,        // Y-coordinate position
-              scaleX: 0.5,     // Scale horizontally (0.5 for 50%)
-              scaleY: 0.5,     // Scale vertically (0.5 for 50%)
+              left: 100, // X-coordinate position
+              top: 100, // Y-coordinate position
+              scaleX: 0.5, // Scale horizontally (0.5 for 50%)
+              scaleY: 0.5, // Scale vertically (0.5 for 50%)
               angle: -90,
               // fill: 'blue',    // Change fill color
               // stroke: 'red',   // Change stroke color
@@ -261,20 +300,24 @@ export default function App() {
             });
 
             console.log(svgElement);
-            
-            editor.canvas.add(svgElement);  // Make sure editor.canvas is your Fabric.js canvas instance.
+
+            editor.canvas.add(svgElement); // Make sure editor.canvas is your Fabric.js canvas instance.
           } else {
             console.error("SVG parsing failed.");
           }
         });
       } else {
-        fabric.Image.fromURL(imageUrl, img => {
-          img.set({ left: 10, top: 10 });
-          img.scaleToWidth(100);
-          img.scaleToHeight(100);
-          editor.canvas.add(img);
-          editor.canvas.renderAll();
-        }, { crossOrigin: 'anonymous' });
+        fabric.Image.fromURL(
+          imageUrl,
+          (img) => {
+            img.set({ left: 10, top: 10 });
+            img.scaleToWidth(100);
+            img.scaleToHeight(100);
+            editor.canvas.add(img);
+            editor.canvas.renderAll();
+          },
+          { crossOrigin: "anonymous" }
+        );
       }
     } catch (e) {
       console.log(e);
@@ -283,18 +326,18 @@ export default function App() {
   // Adds an wall (image) to the canvas
   function addWallToCanvas(svgString) {
     return new Promise((resolve, reject) => {
-      fabric.loadSVGFromString(svgString, function(results, options) {
+      fabric.loadSVGFromString(svgString, function (results, options) {
         if (results && results[0]) {
           const svgElement = results[0];
-  
+
           svgElement.set({
-            left: 100,       // X-coordinate position
-            top: 100,        // Y-coordinate position
-            scaleX: 0.1,    // Scale horizontally (0.25 for 25%)
-            scaleY: 0.1,    // Scale vertically (0.25 for 25%)
+            left: 100, // X-coordinate position
+            top: 100, // Y-coordinate position
+            scaleX: 0.1, // Scale horizontally (0.25 for 25%)
+            scaleY: 0.1, // Scale vertically (0.25 for 25%)
             angle: 0,
           });
-  
+
           editor.canvas.add(svgElement); // Make sure editor.canvas is your Fabric.js canvas instance.
           resolve(svgElement);
         } else {
@@ -309,33 +352,34 @@ export default function App() {
     try {
       const imageUrl = "/wall.svg";
       fetchIMG(imageUrl)
-        .then(svgString => {
+        .then((svgString) => {
           console.log("Fetched SVG:", svgString);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Failed to fetch SVG:", error);
         });
-      const extension = imageUrl.split('.').pop();
+      const extension = imageUrl.split(".").pop();
 
       const length = 5;
       const height = 5;
-  
+
       if (extension === "svg") {
-        var svgString = "<svg width='400px' height='400px' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' version='1.1'> <g><path d='M57.2461,75.0045 C57.2461,75.0045 102.605,89.8415 102.605,89.8415 C102.605,89.8415 55.5504,101.286 55.5504,101.286 C55.5504,101.286 62.7569,89.4175 62.7569,89.4175 C62.7569,89.4175 57.2461,75.0045 57.2461,75.0045 Z' style='stroke:none;fill-rule:evenodd;fill:#fc1997;fill-opacity:1;'/></g></svg>";
+        var svgString =
+          "<svg width='400px' height='400px' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' version='1.1'> <g><path d='M57.2461,75.0045 C57.2461,75.0045 102.605,89.8415 102.605,89.8415 C102.605,89.8415 55.5504,101.286 55.5504,101.286 C55.5504,101.286 62.7569,89.4175 62.7569,89.4175 C62.7569,89.4175 57.2461,75.0045 57.2461,75.0045 Z' style='stroke:none;fill-rule:evenodd;fill:#fc1997;fill-opacity:1;'/></g></svg>";
         svgString = await readSVGFile(imageUrl);
         console.log(svgString);
 
         for (let i = 0; i < length; i++) {
           for (let j = 0; j < height; j++) {
             addWallToCanvas(svgString)
-            .then((svgElement) => {
-              console.log("SVG element added to canvas:", svgElement);
-              // You can continue working with svgElement here or chain further actions.
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-            });
-            
+              .then((svgElement) => {
+                console.log("SVG element added to canvas:", svgElement);
+                // You can continue working with svgElement here or chain further actions.
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+
             break;
           }
           break;
@@ -345,85 +389,87 @@ export default function App() {
       console.log(e);
     }
   };
-  
+
   const saveMap = () => {
     const json = JSON.stringify(editor.canvas.toJSON());
     const jsonData = {
-      svgData: json
-    }
-    
-    const apiUrl = 'https://ec2-13-56-12-137.us-west-1.compute.amazonaws.com/api/saveMap';
+      svgData: json,
+    };
+
+    const apiUrl =
+      "https://ec2-13-56-12-137.us-west-1.compute.amazonaws.com/api/saveMap";
     async function fetchData() {
       try {
         const response = await fetch(apiUrl, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'maps-api-key': '1234MAPS',
+            "Content-Type": "application/json",
+            "maps-api-key": "1234MAPS",
           },
           body: JSON.stringify(jsonData),
         });
-    
+
         if (!response.ok) {
           const err = await response.json();
           throw new Error(`Server error: ${err.message}`);
         }
-    
+
         const data = await response.json();
-        console.log('Server response:', data.message);
+        console.log("Server response:", data.message);
       } catch (error) {
-        console.error('Client or server error:', { error: error.message });
+        console.error("Client or server error:", { error: error.message });
       }
     }
     fetchData();
-  }
+  };
   const getMap = () => {
-    const apiUrl = 'https://ec2-13-56-12-137.us-west-1.compute.amazonaws.com/api/getMap';
-  
+    const apiUrl =
+      "https://ec2-13-56-12-137.us-west-1.compute.amazonaws.com/api/getMap";
+
     async function fetchData() {
       try {
         const response = await fetch(apiUrl, {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'maps-api-key': '1234MAPS',
+            "maps-api-key": "1234MAPS",
           },
         });
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         const data = await response.json();
         editor.canvas.loadFromJSON(data.jsonData);
         console.log(data);
       } catch (error) {
-        console.error('Error:', error);
+        console.error("Error:", error);
       }
     }
-    fetchData()
-  }
+    fetchData();
+  };
 
   const exportAsImage = () => {
     const dataURL = editor.canvas.toDataURL({
-      format: 'jpg',
-      quality: 1
+      format: "jpg",
+      quality: 1,
     });
 
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = dataURL;
-    link.download = 'canvas.jpg';
+    link.download = "canvas.jpg";
     document.body.appendChild(link); // Required for Firefox
     link.click();
     document.body.removeChild(link); // Cleanup
   };
-  const exportAsPDF = () => { 
+  const exportAsPDF = () => {
     const dataURL = editor.canvas.toDataURL({
-      format: 'png',
-      quality: 1
+      format: "png",
+      quality: 1,
     });
 
     const pdf = new jsPDF();
-    pdf.addImage(dataURL, 'PNG', 10, 10);
-    pdf.save('canvas.pdf');
-  }
+    pdf.addImage(dataURL, "PNG", 10, 10);
+    pdf.save("canvas.pdf");
+  };
 
   return (
     <div className="App">
@@ -488,7 +534,7 @@ export default function App() {
         style={{
           border: `3px ${!cropImage ? "dotted" : "solid"} Green`,
           width: "500px",
-          height: "500px"
+          height: "500px",
         }}
       >
         <FabricJSCanvas className="sample-canvas" onReady={onReady} />
