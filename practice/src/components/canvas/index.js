@@ -3,14 +3,15 @@ import jsPDF from "jspdf";
 import { fabric } from "fabric";
 import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react";
 import BackgroundImage from "../../assets/background-image.jpg";
-import BackgroundPattern from "../../assets/stone-ground.png";
+import BackgroundPattern from "../../assets/stone-tile.png";
 import SquareBrush from "../../brushes/SquareBrush";
+import Delaunator from "delaunator";
+import { createNoise2D } from "simplex-noise";
 import "./styles.css";
 
 export default function App() {
   const { editor, onReady } = useFabricJSEditor();
-  const [hoverObject, setHoverObject] = useState("snowflake.svg"); // to hold the object you're hovering
-  const [isHovering, setIsHovering] = useState(false);
+  const [hoverObject, setHoverObject] = useState(null);
 
   const history = [];
   const [color, setColor] = useState("#35363a");
@@ -21,10 +22,10 @@ export default function App() {
       return;
     }
 
-    if (cropImage) {
-      editor.canvas.__eventListeners = {};
-      return;
-    }
+    // if (cropImage) {
+    //   editor.canvas.__eventListeners = {};
+    //   return;
+    // }
 
     if (!editor.canvas.__eventListeners["mouse:wheel"]) {
       editor.canvas.on("mouse:wheel", function (opt) {
@@ -75,8 +76,46 @@ export default function App() {
       });
     }
 
+    
+    // editor.canvas.on("mouse:over", function (opt) {
+    //   if (opt.target && opt.target._element && opt.target._element.tagName === 'image') {
+    //     opt.target.set({
+    //       opacity: 0.5
+    //     });
+    //     editor.canvas.renderAll();
+    //   }
+    // });
+    // if (editor.canvas.__eventListeners["mouse:down"]) {
+    //   console.log("yup");
+    //   editor.canvas.on("mouse:down", function (opt) {
+    //     const pointer = editor.canvas.getPointer(opt.e);
+    //     addSVGImage(pointer.x, pointer.y, editor.canvas);
+    //   });
+    // }
+    // editor.canvas.on("mouse:out", function (opt) {
+    //   if (opt.target && opt.target._element && opt.target._element.tagName === 'image') {
+    //     opt.target.set({
+    //       opacity: 1
+    //     });
+    //     editor.canvas.renderAll();
+    //   }
+    // });
+
     editor.canvas.renderAll();
   }, [editor]);
+
+  // Simply loads an SVG to the center of the canvas (svg is in build folder)
+  const addSVGImage = (x, y, canvas) => {
+    fabric.loadSVGFromURL('snowflake.svg', function (objects, options) {
+      const svg = fabric.util.groupSVGElements(objects, options);
+      svg.scale(0.2)
+        .set({
+          left: x - svg.width * svg.scaleX / 2,  // Center the SVG image
+          top: y - svg.height * svg.scaleY / 2
+        });
+      canvas.add(svg).renderAll();
+    });
+  };
 
   const addBackground = () => {
     if (!editor || !fabric) {
@@ -150,40 +189,271 @@ export default function App() {
     editor.setStrokeColor(color);
   }, [color]);
 
-  // Create a function to handle hover
-  const handleHover = (opt) => {
-    const pointer = editor.canvas.getPointer(opt.e);
-    if (isHovering) {
-      hoverObject.set({ left: pointer.x, top: pointer.y });
-      editor.canvas.renderAll();
+  const GRIDSIZE = 15;
+  let delaunay;
+  function drawPoints() {
+    const JITTER = 0.5;
+    let points = [];
+    for (let x = 0; x <= GRIDSIZE; x++) {
+      for (let y = 0; y <= GRIDSIZE; y++) {
+        points.push({
+          x: x + JITTER * (Math.random() - Math.random()),
+          y: y + JITTER * (Math.random() - Math.random()),
+        });
+      }
     }
-  };
+    points.push({ x: -10, y: GRIDSIZE / 2 });
+    points.push({ x: GRIDSIZE + 10, y: GRIDSIZE / 2 });
+    points.push({ y: -10, x: GRIDSIZE / 2 });
+    points.push({ y: GRIDSIZE + 10, x: GRIDSIZE / 2 });
+    points.push({ x: -10, y: -10 });
+    points.push({ x: GRIDSIZE + 10, y: GRIDSIZE + 10 });
+    points.push({ y: -10, x: GRIDSIZE + 10 });
+    points.push({ y: GRIDSIZE + 10, x: -10 });
 
-  // Create a function to handle click
-  const handleClick = (opt) => {
-    hoverObject.clone((clonedObj) => {
-      editor.canvas.add(clonedObj);
-    });
-  };
-
-  // Your useEffect
-  useEffect(() => {
-    if (!editor || !fabric) {
-      return;
+    let ctx = editor.canvas.getContext("2d");
+    ctx.save();
+    ctx.scale(editor.canvas.width / GRIDSIZE, editor.canvas.height / GRIDSIZE);
+    ctx.fillStyle = "hsl(0, 50%, 50%)";
+    for (let { x, y } of points) {
+      ctx.beginPath();
+      ctx.arc(x, y, 0.1, 0, 2 * Math.PI);
+      ctx.fill();
     }
+    ctx.restore();
 
-    // Initialize your hover object (this can be an image, a shape, etc.)
-    // setHoverObject();
-
-    // Attach the hover and click event handlers
-    editor.canvas.on("mouse:move", handleHover);
-    editor.canvas.on("mouse:down", handleClick);
-
-    return () => {
-      editor.canvas.off("mouse:move", handleHover);
-      editor.canvas.off("mouse:down", handleClick);
+    delaunay = Delaunator.from(
+      points,
+      (loc) => loc.x,
+      (loc) => loc.y
+    );
+    let map = {
+      points,
+      numRegions: points.length,
+      numTriangles: delaunay.halfedges.length / 3,
+      numEdges: delaunay.halfedges.length,
+      halfedges: delaunay.halfedges,
+      triangles: delaunay.triangles,
+      centers: calculateCentroids(points, delaunay),
     };
-  }, [editor, isHovering, hoverObject]);
+
+    let { centers, halfedges, triangles, numEdges } = map;
+    ctx.save();
+    ctx.scale(editor.canvas.width / GRIDSIZE, editor.canvas.height / GRIDSIZE);
+    ctx.lineWidth = 0.02;
+    ctx.strokeStyle = "black";
+    for (let e = 0; e < numEdges; e++) {
+      if (e < delaunay.halfedges[e]) {
+        const p = centers[triangleOfEdge(e)];
+        const q = centers[triangleOfEdge(halfedges[e])];
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(q.x, q.y);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+    map.elevation = assignElevation(map);
+    // console.log(JSON.stringify(map.elevation));
+
+    // let elevationMatrix = new Array(GRIDSIZE).fill(null).map(() => new Array(GRIDSIZE).fill(0));
+    // for (let i = 0; i < GRIDSIZE; i++) {
+    //   for (let j = 0; j < GRIDSIZE; j++) {
+    //     elevationMatrix[i][j] = map.elevation[i * GRIDSIZE + j];
+    //   }
+    // }
+
+    // const regions = findRegions(elevationMatrix);
+    // // console.log(regions);
+    // for (let i = 0; i < regions.length - 1; i++) {
+    //   const closestPoints = findClosestPoints(regions[i], regions[i + 1]);
+    //   createPath(elevationMatrix, closestPoints[0], closestPoints[1]);
+    // }
+    // console.log(elevationMatrix);
+    // map.elevation = elevationMatrix.reduce((acc, row) => acc.concat(row), []);
+    // console.log(map.elevation);
+    console.log(map.elevation);
+    console.log(map.elevation[10]);
+    drawCellColors(editor.canvas, map, (r) =>
+      map.elevation[r] < 0.5 ? "hsl(240, 30%, 50%)" : "hsl(90, 20%, 50%)"
+    );
+  }
+
+  function calculateCentroids(points, delaunay) {
+    const numTriangles = delaunay.halfedges.length / 3;
+    let centroids = [];
+    for (let t = 0; t < numTriangles; t++) {
+      let sumOfX = 0,
+        sumOfY = 0;
+      for (let i = 0; i < 3; i++) {
+        let s = 3 * t + i;
+        let p = points[delaunay.triangles[s]];
+        sumOfX += p.x;
+        sumOfY += p.y;
+      }
+      centroids[t] = { x: sumOfX / 3, y: sumOfY / 3 };
+    }
+    return centroids;
+  }
+  function triangleOfEdge(e) {
+    return Math.floor(e / 3);
+  }
+  function nextHalfedge(e) {
+    return e % 3 === 2 ? e - 2 : e + 1;
+  }
+  const WAVELENGTH = 0.05;
+  function assignElevation(map) {
+    let noise2D = new createNoise2D();
+    let { points, numRegions } = map;
+    let elevation = [];
+
+    // Define seed point for single island
+    let seed = { x: GRIDSIZE / 2, y: GRIDSIZE / 2 };
+
+    for (let r = 0; r < numRegions; r++) {
+      let nx = points[r].x / GRIDSIZE - 1 / 2,
+        ny = points[r].y / GRIDSIZE - 1 / 2;
+
+      // Calculate distance from the seed point
+      let d = Math.sqrt(
+        Math.pow(points[r].x - seed.x, 2) + Math.pow(points[r].y - seed.y, 2)
+      );
+      d = d / Math.sqrt(Math.pow(GRIDSIZE, 2) + Math.pow(GRIDSIZE, 2)); // Normalize
+
+      // Start with noise
+      let baseElevation = (1 + noise2D(nx / WAVELENGTH, ny / WAVELENGTH)) / 2;
+
+      // Enforce elevation decrease based on distance from the seed
+      let adjustedElevation = Math.max(0, baseElevation - d);
+
+      elevation[r] = adjustedElevation;
+    }
+
+    // Normalize the elevations to a scale of 0 to 1
+    let maxElevation = Math.max(...elevation);
+    for (let r = 0; r < numRegions; r++) {
+      elevation[r] /= maxElevation;
+    }
+
+    return elevation;
+  }
+  function distance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  }
+  // Find closest points between two regions
+  function findClosestPoints(region1, region2) {
+    let minDistance = Infinity;
+    let closestPair;
+
+    for (const [x1, y1] of region1) {
+      for (const [x2, y2] of region2) {
+        const dist = distance(x1, y1, x2, y2);
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestPair = [[x1, y1], [x2, y2]];
+        }
+      }
+    }
+
+    return closestPair;
+  }
+  // Create path between two points and set elevation to 0.5
+  function createPath(matrix, point1, point2) {
+    const [x1, y1] = point1;
+    const [x2, y2] = point2;
+    const maxPathWidth = Math.floor(matrix.length * 0.1);
+
+    for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
+      let randomWidth = Math.floor(Math.random() * (Math.floor(matrix.length * 0.2))) + 1;
+      for (let w = 0; w <= randomWidth; w++) {
+        if (y1 - w >= 0) matrix[x][y1 - w] = 0.5;
+        if (y1 + w < matrix[0].length) matrix[x][y1 + w] = 0.5;
+      }
+    }
+
+    for (let y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
+      let randomWidth = Math.floor(Math.random() * (Math.floor(matrix.length * 0.2))) + 1;
+      for (let w = 0; w <= randomWidth; w++) {
+        if (x2 - w >= 0) matrix[x2 - w][y] = 0.5;
+        if (x2 + w < matrix.length) matrix[x2 + w][y] = 0.5;
+      }
+    }
+  }
+  function findRegions(matrix) {
+    const rows = matrix.length;
+    const cols = matrix[0].length;
+    const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+    const regions = [];
+  
+    // Helper function for DFS traversal
+    const dfs = (x, y, region) => {
+      if (x < 0 || x >= rows || y < 0 || y >= cols || visited[x][y]) return;
+      
+      visited[x][y] = true;
+  
+      // Only consider cells with elevation 0.5 or higher
+      if (matrix[x][y] < 0.5) return;
+  
+      // Add the current cell to the region
+      region.push([x, y]);
+  
+      // Explore adjacent cells
+      dfs(x + 1, y, region);
+      dfs(x - 1, y, region);
+      dfs(x, y + 1, region);
+      dfs(x, y - 1, region);
+    };
+  
+    // Main loop to find regions
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        if (!visited[i][j] && matrix[i][j] >= 0.5) {
+          const newRegion = [];
+          dfs(i, j, newRegion);
+          if (newRegion.length > 0) {
+            regions.push(newRegion);
+          }
+        }
+      }
+    }
+  
+    return regions;
+  }
+  
+  function edgesAroundPoint(delaunay, start) {
+    const result = [];
+    let incoming = start;
+    do {
+      result.push(incoming);
+      const outgoing = nextHalfedge(incoming);
+      incoming = delaunay.halfedges[outgoing];
+    } while (incoming !== -1 && incoming !== start);
+    return result;
+  }
+  function drawCellColors(canvas, map, colorFn) {
+    let ctx = canvas.getContext("2d");
+    ctx.save();
+    ctx.scale(canvas.width / GRIDSIZE, canvas.height / GRIDSIZE);
+    let seen = new Set(); // of region ids
+    let { triangles, numEdges, centers } = map;
+    for (let e = 0; e < numEdges; e++) {
+      const r = triangles[nextHalfedge(e)];
+      if (!seen.has(r)) {
+        seen.add(r);
+        let vertices = edgesAroundPoint(delaunay, e).map(
+          (e) => centers[triangleOfEdge(e)]
+        );
+        ctx.fillStyle = colorFn(r);
+        ctx.beginPath();
+        ctx.moveTo(vertices[0].x, vertices[0].y);
+        for (let i = 1; i < vertices.length; i++) {
+          ctx.lineTo(vertices[i].x, vertices[i].y);
+        }
+        ctx.fill();
+      }
+    }
+  }
+
 
   const toggleDraw = () => {
     const texturePatternBrush = new fabric.PatternBrush(editor.canvas);
@@ -208,7 +478,7 @@ export default function App() {
 
       editor.canvas.freeDrawingBrush = texturePatternBrush;
       editor.canvas.isDrawingMode = true;
-      editor.canvas.freeDrawingBrush.width = 40;
+      editor.canvas.freeDrawingBrush.width = 100;
       editor.canvas.renderAll(); // Force a re-render
     };
 
@@ -252,6 +522,7 @@ export default function App() {
     editor.addText("insert text");
   };
 
+  // Fetchs the SVG file and returns a string
   async function readSVGFile(fileUrl) {
     const response = await fetch(fileUrl);
     if (!response.ok) {
@@ -266,6 +537,7 @@ export default function App() {
     return text;
   }
 
+  // Adds an image to the canvas with a distinct svg from the build folder.
   const addImage = async () => {
     try {
       const imageUrl = "/wall.svg";
@@ -279,11 +551,15 @@ export default function App() {
       const extension = imageUrl.split(".").pop();
 
       if (extension === "svg") {
+        // An example
         var svgString =
           "<svg width='400px' height='400px' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg' version='1.1'> <g><path d='M57.2461,75.0045 C57.2461,75.0045 102.605,89.8415 102.605,89.8415 C102.605,89.8415 55.5504,101.286 55.5504,101.286 C55.5504,101.286 62.7569,89.4175 62.7569,89.4175 C62.7569,89.4175 57.2461,75.0045 57.2461,75.0045 Z' style='stroke:none;fill-rule:evenodd;fill:#fc1997;fill-opacity:1;'/></g></svg>";
+        // svgString should be overwritten with whatever imageUrl you gave it.
         svgString = await readSVGFile(imageUrl);
         console.log(svgString);
 
+        // This is how to load an SVG from a string.
+        // I don't know if there is another way to drop an SVG onto a canvas like this.
         fabric.loadSVGFromString(svgString, function (results, options) {
           if (results && results[0]) {
             const svgElement = results[0];
@@ -307,6 +583,7 @@ export default function App() {
           }
         });
       } else {
+        // Just in case we don't work with SVGs?
         fabric.Image.fromURL(
           imageUrl,
           (img) => {
@@ -528,6 +805,9 @@ export default function App() {
       </button>
       <button onClick={getMap} disabled={!cropImage}>
         Get Map
+      </button>
+      <button onClick={drawPoints} disabled={!cropImage}>
+        Draw Points
       </button>
 
       <div

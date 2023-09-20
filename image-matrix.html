@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Image Matrix</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <style>
+      .row {
+        display: flex;
+        margin: 0;
+        padding: 0;
+      }
+      .matrix-image {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="file" id="imageUpload" />
+    <div id="imageContainer">
+      <!-- 3x3 Matrix -->
+      <div class="row">
+        <img class="matrix-image" />
+        <img class="matrix-image" />
+        <img class="matrix-image" />
+      </div>
+      <div class="row">
+        <img class="matrix-image" />
+        <img class="matrix-image" />
+        <img class="matrix-image" />
+      </div>
+      <div class="row">
+        <img class="matrix-image" />
+        <img class="matrix-image" />
+        <img class="matrix-image" />
+      </div>
+      <div class="row">
+        <img class="matrix-image" />
+        <img class="matrix-image" />
+        <img class="matrix-image" />
+      </div>
+    </div>
+    <button onclick="downloadImage()">Download Matrix</button>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const imageUpload = document.getElementById("imageUpload");
+        const images = document.querySelectorAll(".matrix-image");
+
+        imageUpload.addEventListener("change", function (event) {
+          const file = event.target.files[0];
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            const src = e.target.result;
+            images.forEach((img) => {
+              img.src = src;
+            });
+          };
+
+          reader.readAsDataURL(file);
+        });
+      });
+
+      function downloadImage() {
+        const imageContainer = document.getElementById("imageContainer");
+        html2canvas(imageContainer).then(function (canvas) {
+          const link = document.createElement("a");
+          link.href = canvas.toDataURL();
+          link.download = "image_matrix.png";
+          link.click();
+        });
+      }
+    </script>
+  </body>
+</html>
