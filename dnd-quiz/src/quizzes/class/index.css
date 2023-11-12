@@ -1,0 +1,182 @@
+/* General Styles */
+.quiz-container {
+  font-family: 'Arial', sans-serif;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  color: #2c3e50; /* Color from the home page for consistency */
+}
+
+.quiz-container h1 {
+  text-align: center;
+  color: #3498db; /* Blue color from the hero section */
+  margin-bottom: 30px;
+  font-size: 2.8rem; /* Larger font size for emphasis */
+}
+
+/* Questions and Options */
+.question {
+  margin-bottom: 15px;
+  position: relative;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.question h2 {
+  color: #555;
+  font-size: 20px;
+}
+
+.options {
+  margin: 10px 0;
+}
+
+.options label {
+  display: block;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  margin-bottom: 8px;
+}
+
+.options label:hover,
+.options input[type="radio"]:checked + label {
+  background-color: #e0e0e0;
+  transform: scale(1.02);
+}
+
+/* Buttons */
+button {
+  background-color: #4b5563;
+  color: #f9fafb;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 10px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:focus {
+  outline: none;
+}
+
+/* Result Styling */
+.result {
+  margin-top: 20px;
+  padding: 20px;
+  text-align: center;
+  font-size: 24px;
+  background-color: #f4f4f8;
+  border: 2px solid #5d5c61;
+  border-radius: 8px;
+  color: #4a4e69;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.result + button {
+  display: block;
+  margin: 20px auto;
+}
+
+.result:hover {
+  background-color: #e9ecef;
+  border-color: #495057;
+  color: #212529;
+}
+
+/* Restart Button */
+.restart-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  display: block;
+  margin: 20px auto;
+  transition: background-color 0.3s;
+}
+
+.restart-button:hover {
+  background-color: #5a6268;
+}
+
+/* Start Screen Styling */
+.start-screen h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #3498db; /* Blue color from hero section */
+  font-size: 1.5rem; /* Larger font size for emphasis */
+}
+
+.start-screen button {
+  background-color: #ecf0f1; /* Background from quiz-card */
+  color: #2c3e50;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px; /* Rounded corners like quiz-card */
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.start-screen button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.start-screen button.selected {
+  background-color: #3498db; /* Highlight color for selected option */
+  color: white;
+  border: 2px solid #0056b3;
+}
+
+.start-screen button:not(.selected):hover {
+  background-color: #6e6e70;
+}
+
+/* Error Message Styling */
+.error-message {
+  color: #d9534f;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 16px;
+}
+
+/* Animation for question change */
+.question-leave {
+  opacity: 0;
+  position: absolute;
+  transition: opacity 0.5s ease;
+}
+
+.question-enter {
+  opacity: 0;
+}
+
+.question-enter.question-enter-active {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+  .quiz-container h1 {
+    font-size: 2.2rem;
+  }
+}
