@@ -74,6 +74,9 @@ const classSpells = {
       spellModifier: "Intelligence",
       damage: "1d10 fire damage",
       slots: "At-will (Cantrip)",
+      duration: "Instantaneous",
+      range: "120 feet",
+      concentration: "No",
     },
     {
       name: "Mage Hand",
@@ -82,13 +85,19 @@ const classSpells = {
       spellModifier: "Intelligence",
       damage: "N/A",
       slots: "At-will (Cantrip)",
+      duration: "1 minute",
+      range: "30 feet",
+      concentration: "No",
     },
     {
       name: "Magic Missile",
       description: "You create three glowing darts of magical force.",
       spellModifier: "Intelligence",
       damage: "1d4+1 force damage per dart",
-      slots: 3, // 1st-level slots
+      slots: 3,
+      duration: "Instantaneous",
+      range: "120 feet",
+      concentration: "No",
     },
     {
       name: "Shield",
@@ -96,7 +105,10 @@ const classSpells = {
         "An invisible barrier of magical force appears and protects you. +2 AC",
       spellModifier: "Intelligence",
       damage: "N/A",
-      slots: 1, // 1st-level slots
+      slots: 1,
+      duration: "1 hour",
+      range: "Self",
+      concentration: "No",
     },
     {
       name: "Misty Step",
@@ -104,7 +116,10 @@ const classSpells = {
         "Briefly surrounded by silvery mist, you teleport up to 30 feet to an unoccupied space that you can see.",
       spellModifier: "Intelligence",
       damage: "N/A",
-      slots: 1, // 2nd-level slots
+      slots: 2,
+      duration: "Instantaneous",
+      range: "Self",
+      concentration: "No",
     },
     {
       name: "Scorching Ray",
@@ -112,7 +127,10 @@ const classSpells = {
         "You create three rays of fire and hurl them at targets within range.",
       spellModifier: "Intelligence",
       damage: "2d6 fire damage per ray",
-      slots: 2, // 2nd-level slots
+      slots: 2,
+      duration: "Instantaneous",
+      range: "120 feet",
+      concentration: "No",
     },
     {
       name: "Fireball",
@@ -120,7 +138,10 @@ const classSpells = {
         "A bright streak flashes from your pointing finger to a point you choose within range and then blossoms with a low roar into an explosion of flame.",
       spellModifier: "Intelligence",
       damage: "8d6 fire damage",
-      slots: 1, // 3rd-level slots
+      slots: 1,
+      duration: "Instantaneous",
+      range: "150 feet",
+      concentration: "No",
     },
     {
       name: "Counterspell",
@@ -128,7 +149,10 @@ const classSpells = {
         "You attempt to interrupt a creature in the process of casting a spell.",
       spellModifier: "Intelligence",
       damage: "N/A",
-      slots: 1, // 3rd-level slots
+      slots: 2,
+      duration: "Instantaneous",
+      range: "60 feet",
+      concentration: "No",
     },
   ],
   Cleric: [
@@ -136,48 +160,66 @@ const classSpells = {
       name: "Cure Wounds",
       description:
         "A creature you touch regains a number of hit points equal to 1d8 + your Wisdom modifier.",
+      duration: "Instantaneous",
+      range: "Touch",
+      concentration: "No",
+      damage: "N/A (Healing)",
       spellModifier: "Wisdom",
-      damage: "N/A",
       slots: 4, // 1st-level slots
     },
     {
       name: "Bless",
       description:
         "You bless up to three creatures of your choice within range. They gain a +1d4 bonus to attack rolls and saving throws.",
-      spellModifier: "Wisdom",
+      duration: "Concentration (Up to 1 minute)",
+      range: "Range",
+      concentration: "Yes",
       damage: "N/A",
+      spellModifier: "Wisdom",
       slots: 2, // 1st-level slots
     },
     {
       name: "Spiritual Weapon",
       description:
         "You create a floating, spectral weapon that attacks on your behalf.",
-      spellModifier: "Wisdom",
+      duration: "Concentration (Up to 1 minute)",
+      range: "Range",
+      concentration: "Yes",
       damage: "1d8 + your Wisdom modifier force damage",
+      spellModifier: "Wisdom",
       slots: 2, // 2nd-level slots
     },
     {
       name: "Cure Serious Wounds",
       description:
         "A creature you touch regains a number of hit points equal to 3d8 + your Wisdom modifier.",
+      duration: "Instantaneous",
+      range: "Touch",
+      concentration: "No",
+      damage: "N/A (Healing)",
       spellModifier: "Wisdom",
-      damage: "N/A",
       slots: 2, // 2nd-level slots
     },
     {
       name: "Divine Spirit",
       description:
         "You channel the power of your deity to grant temporary hit points to creatures of your choice within range. 1d8 + Wisdom modifier.",
+      duration: "Instantaneous",
+      range: "Range",
+      concentration: "No",
+      damage: "N/A (Healing)",
       spellModifier: "Wisdom",
-      damage: "N/A",
       slots: 1, // 3rd-level slots
     },
     {
       name: "Mass Heal",
       description:
         "You channel positive energy to restore a large number of hit points to multiple creatures within range. 3d8 + Wisdom modifier.",
+      duration: "Instantaneous",
+      range: "Range",
+      concentration: "No",
+      damage: "N/A (Healing)",
       spellModifier: "Wisdom",
-      damage: "N/A",
       slots: 1, // 4th-level slots
     },
   ],
@@ -186,283 +228,415 @@ const classSpells = {
       name: "Blade Ward",
       description:
         "You extend your hand and trace a sigil of warding in the air. Until the end of your next turn, you have resistance against bludgeoning, piercing, and slashing damage dealt by weapon attacks.",
-      spellModifier: "Charisma",
+      duration: "Until the end of your next turn",
+      range: "Self",
+      concentration: "No",
       damage: "N/A",
+      spellModifier: "Charisma",
       slots: "At-will (Cantrip)",
     },
     {
       name: "Thunderclap",
       description:
         "You create a burst of thunderous sound that can be heard up to 100 feet away. Each creature within range, other than you, must make a Constitution saving throw or take 1d6 thunder damage.",
-      spellModifier: "Charisma",
+      duration: "Instantaneous",
+      range: "5-foot radius around you",
+      concentration: "No",
       damage: "1d6 thunder damage",
+      spellModifier: "Charisma",
       slots: "At-will (Cantrip)",
     },
     {
       name: "Thunderwave",
       description:
         "A wave of thunderous force sweeps out from you. Each creature in a 15-foot cube originating from you must make a Constitution saving throw.",
-      spellModifier: "Charisma",
+      duration: "Instantaneous",
+      range: "Self (15-foot cube)",
+      concentration: "No",
       damage: "2d8 thunder damage",
-      slots: "2",
+      spellModifier: "Charisma",
+      slots: 2,
     },
     {
       name: "Charm Person",
       description:
         "You attempt to charm a humanoid you can see within range. It must make a Wisdom saving throw, and if it fails, it is charmed by you until the spell ends or until you or your companions do anything harmful to it.",
-      spellModifier: "Charisma",
+      duration: "1 hour",
+      range: "30 feet",
+      concentration: "No",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Charisma",
+      slots: 1,
     },
   ],
+
   Paladin: [
     {
       name: "Divine Smite",
       description:
         "When you hit a creature with a melee weapon attack, you can expend one spell slot to deal radiant damage to the target, in addition to the weapon's damage.",
-      spellModifier: "Charisma",
+      duration: "Instantaneous",
+      range: "Melee weapon attack",
+      concentration: "No",
       damage: "2d8 radiant damage",
-      slots: "2",
+      spellModifier: "Charisma",
+      slots: 2,
     },
     {
       name: "Lay on Hands",
       description:
         "Your blessed touch can heal wounds. You have a pool of healing power that replenishes when you take a long rest.",
-      spellModifier: "N/A",
+      duration: "Instantaneous",
+      range: "Touch",
+      concentration: "No",
       damage:
         "Heals a total number of hit points equal to your Paladin level x 5",
+      spellModifier: "N/A",
       slots: "N/A",
     },
     {
       name: "Shield of Faith",
       description:
         "You create a shimmering field of magical force around a creature of your choice within range. The target gains a +2 bonus to AC for the duration.",
-      spellModifier: "Charisma",
+      duration: "Concentration (Up to 10 minutes)",
+      range: "Range",
+      concentration: "Yes",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Charisma",
+      slots: 1,
     },
   ],
+
   Rogue: [
     {
       name: "Mage Hand",
       description:
         "A spectral, floating hand appears at a point you choose within range.",
-      spellModifier: "Intelligence",
+      duration: "1 minute",
+      range: "30 feet",
+      concentration: "No",
       damage: "N/A",
+      spellModifier: "Intelligence",
       slots: "At-will (Cantrip)",
     },
     {
       name: "Minor Illusion",
       description: "You create a sound or an image of an object within range.",
-      spellModifier: "Intelligence",
+      duration: "1 minute",
+      range: "30 feet",
+      concentration: "No",
       damage: "N/A",
+      spellModifier: "Intelligence",
       slots: "At-will (Cantrip)",
     },
     {
       name: "Mage Armor",
       description:
         "You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends. The target's base AC becomes 13 + its Dexterity modifier.",
-      spellModifier: "Intelligence",
+      duration: "8 hours",
+      range: "Touch",
+      concentration: "No",
       damage: "N/A",
-      slots: "1 ",
+      spellModifier: "Intelligence",
+      slots: 1,
     },
     {
-      name: "Find Familiar",
+      name: "Shadow Strike",
       description:
-        "You gain the service of a familiar, a spirit that takes an animal form you choose.",
+        "You infuse your weapon with shadowy energy, making your next melee attack deal an extra 2d6 necrotic damage.",
+      duration: "Instantaneous",
+      range: "Self",
+      concentration: "No",
+      damage: "2d6 necrotic damage",
       spellModifier: "Intelligence",
-      damage: "N/A",
-      slots: "1",
+      slots: 1,
     },
   ],
+
   Ranger: [
     {
       name: "Hunter's Mark",
       description:
         "You choose a creature you can see within range and mystically mark it as your quarry.",
-      spellModifier: "Wisdom",
+      duration: "Concentration (Up to 1 hour)",
+      range: "90 feet",
+      concentration: "Yes",
       damage: "Extra 1d6 damage on all weapon attacks against the target",
-      slots: "2",
+      spellModifier: "Wisdom",
+      slots: 2,
     },
     {
       name: "Cure Wounds",
       description:
         "A creature you touch regains a number of hit points equal to 1d8 + your Wisdom modifier.",
+      duration: "Instantaneous",
+      range: "Touch",
+      concentration: "No",
+      damage: "N/A (Healing)",
       spellModifier: "Wisdom",
-      damage: "N/A",
-      slots: "2",
+      slots: 2,
     },
     {
       name: "Ensnaring Strike",
       description:
         "The next time you hit a creature with a weapon attack before this spell ends, a writhing mass of thorny vines appears at the point of impact, and the target must succeed on a Strength saving throw or be restrained.",
-      spellModifier: "Wisdom",
+      duration: "Concentration (Up to 1 minute)",
+      range: "Self",
+      concentration: "Yes",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Wisdom",
+      slots: 1,
+    },
+    {
+      name: "Colossal Shot",
+      description:
+        "You infuse your ranged weapon with the power of the elements, making your next ranged attack deal an extra 2d8 elemental damage.",
+      duration: "Instantaneous",
+      range: "Self",
+      concentration: "No",
+      damage: "2d8 elemental damage",
+      spellModifier: "Wisdom",
+      slots: 1,
     },
   ],
+
   Druid: [
+    {
+      name: "Thorn Whip",
+      description:
+        "You create a long, vine-like whip covered in thorns that lashes out at your command, dealing 1d6 piercing damage and pulling the target closer to you.",
+      duration: "Instantaneous",
+      range: "30 feet",
+      concentration: "No",
+      damage: "1d6 piercing damage",
+      spellModifier: "Wisdom",
+      slots: "At-will (Cantrip)",
+    },
     {
       name: "Entangle",
       description:
         "You conjure plants and create difficult terrain. A creature in the area when you cast the spell must succeed on a Strength saving throw or be restrained.",
-      spellModifier: "Wisdom",
+      duration: "Concentration (Up to 1 minute)",
+      range: "90 feet",
+      concentration: "Yes",
       damage: "N/A",
-      slots: "2",
+      spellModifier: "Wisdom",
+      slots: 2,
     },
     {
       name: "Cure Wounds",
       description:
         "A creature you touch regains a number of hit points equal to 1d8 + your Wisdom modifier.",
+      duration: "Instantaneous",
+      range: "Touch",
+      concentration: "No",
+      damage: "N/A (Healing)",
       spellModifier: "Wisdom",
-      damage: "N/A",
-      slots: "2",
+      slots: 2,
     },
     {
       name: "Animal Friendship",
       description:
         "This spell lets you convince a beast that you mean it no harm.",
-      spellModifier: "Wisdom",
+      duration: "24 hours",
+      range: "30 feet",
+      concentration: "No",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Wisdom",
+      slots: 1,
     },
     {
       name: "Barkskin",
       description:
         "You touch a willing creature and grant it the resilience of a tree. +2 AC",
-      spellModifier: "Wisdom",
+      duration: "Concentration (Up to 1 hour)",
+      range: "Touch",
+      concentration: "Yes",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Wisdom",
+      slots: 1,
+    },
+    {
+      name: "Elemental Fury",
+      description:
+        "You harness the power of the elements, allowing you to transform into a powerful elemental form, gaining resistance to specific elemental damage types and dealing an extra 2d8 elemental damage with your attacks.",
+      duration: "1 hour",
+      range: "Self",
+      concentration: "No",
+      damage: "2d8 elemental damage",
+      spellModifier: "Wisdom",
+      slots: 1, // Powerful Druid spell
     },
   ],
+
   Artificer: [
     {
       name: "Magic Missile",
       description: "You create three glowing darts of magical force.",
-      spellModifier: "Intelligence",
+      duration: "Instantaneous",
+      range: "120 feet",
+      concentration: "No",
       damage: "1d4+1 force damage per dart",
-      slots: "2",
+      spellModifier: "Intelligence",
+      slots: 2,
     },
     {
       name: "Cure Wounds",
       description:
         "A creature you touch regains a number of hit points equal to 1d8 + your Intelligence modifier.",
+      duration: "Instantaneous",
+      range: "Touch",
+      concentration: "No",
+      damage: "N/A (Healing)",
       spellModifier: "Intelligence",
-      damage: "N/A",
-      slots: "2",
+      slots: 2,
     },
     {
       name: "Shield",
       description:
         "An invisible barrier of magical force appears and protects you. +2 AC.",
-      spellModifier: "Intelligence",
+      duration: "1 round",
+      range: "Self",
+      concentration: "No",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Intelligence",
+      slots: 1,
     },
     {
       name: "Arcane Weapon",
       description:
         "You bond a weapon to yourself, infusing it with magic. The weapon gains a +1 bonus to attack and damage rolls.",
-      spellModifier: "Intelligence",
+      duration: "1 hour",
+      range: "Self",
+      concentration: "No",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Intelligence",
+      slots: 1,
     },
   ],
+
   Warlock: [
     {
       name: "Eldritch Blast",
       description:
         "A beam of crackling energy streaks toward a creature within range.",
-      spellModifier: "Charisma",
+      duration: "Instantaneous",
+      range: "120 feet",
+      concentration: "No",
       damage: "1d10 force damage",
+      spellModifier: "Charisma",
       slots: "At-will (Cantrip)",
     },
     {
       name: "Hex",
       description:
         "You place a curse on a creature that you can see within range. You gain a bonus to damage rolls against the cursed target equal to your proficiency bonus. Any attack roll you make against the cursed target is a critical hit on a roll of 19 or 20 on the d20. If the cursed target dies, you regain hit points equal to your Warlock level + your Charisma modifier (minimum of 1 hit point).",
-      spellModifier: "Charisma",
+      duration: "Concentration (Up to 1 hour)",
+      range: "90 feet",
+      concentration: "Yes",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Charisma",
+      slots: 1,
     },
     {
       name: "Armor of Agathys",
       description:
-        "A protective magical force surrounds you, manifesting as frost on your body. +2 AC",
-      spellModifier: "Charisma",
+        "A protective magical force surrounds you, manifesting as frost on your body. +2 AC.",
+      duration: "1 hour",
+      range: "Self",
+      concentration: "No",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Charisma",
+      slots: 1,
     },
     {
       name: "Darkness",
       description:
         "Magical darkness spreads from a point you choose within range to fill a 15-foot radius sphere for the duration.",
-      spellModifier: "Charisma",
+      duration: "10 minutes",
+      range: "60 feet",
+      concentration: "No",
       damage: "N/A",
-      slots: "2",
+      spellModifier: "Charisma",
+      slots: 2,
     },
   ],
+
   Sorcerer: [
     {
       name: "Mage Armor",
       description:
         "You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends. The target's base AC becomes 13 + its Dexterity modifier.",
-      spellModifier: "Charisma",
+      duration: "8 hours",
+      range: "Touch",
+      concentration: "No",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Charisma",
+      slots: 1,
     },
     {
       name: "Magic Missile",
       description: "You create three glowing darts of magical force.",
-      spellModifier: "Charisma",
+      duration: "Instantaneous",
+      range: "120 feet",
+      concentration: "No",
       damage: "1d4+1 force damage per dart",
-      slots: "1",
+      spellModifier: "Charisma",
+      slots: 1,
     },
     {
       name: "Thunderwave",
       description:
         "A wave of thunderous force sweeps out from you. Each creature in a 15-foot cube originating from you must make a Constitution saving throw.",
-      spellModifier: "Charisma",
+      duration: "Instantaneous",
+      range: "Self (15-foot cube)",
+      concentration: "No",
       damage: "2d8 thunder damage",
-      slots: "1",
+      spellModifier: "Charisma",
+      slots: 1,
     },
     {
       name: "Invisibility",
       description:
         "A creature you touch becomes invisible until the spell ends. Anything the target is wearing or carrying is invisible as long as it is on the target's person.",
-      spellModifier: "Charisma",
+      duration: "1 hour",
+      range: "Touch",
+      concentration: "No",
       damage: "N/A",
-      slots: "1",
+      spellModifier: "Charisma",
+      slots: 1,
     },
     {
       name: "Fireball",
       description:
         "A bright streak flashes from your pointing finger to a point you choose within range and then blossoms with a low roar into an explosion of flame.",
-      spellModifier: "Charisma",
+      duration: "Instantaneous",
+      range: "150 feet",
+      concentration: "No",
       damage: "8d6 fire damage",
-      slots: "1",
+      spellModifier: "Charisma",
+      slots: 1,
     },
-
     {
       name: "Lightning Bolt",
       description:
         "A stroke of lightning forming a line 100 feet long and 5 feet wide blasts out from you in a direction you choose.",
-      spellModifier: "Charisma",
+      duration: "Instantaneous",
+      range: "Self (100-foot line)",
+      concentration: "No",
       damage: "8d6 lightning damage",
+      spellModifier: "Charisma",
       slots: "1 (3rd-level slot)",
     },
   ],
 };
+
 const dndRaceAbilities = {
   Elf: [
     {
       name: "Darkvision",
       description:
         "Accustomed to twilit forests and the night sky, you have superior vision in dark and dim conditions.",
-    },
-    {
-      name: "Keen Senses",
-      description: "You have proficiency in the Perception skill.",
     },
     {
       name: "Fey Ancestry",
@@ -634,39 +808,78 @@ const classWeaponProficiency = {
 
 const classEquipment = {
   Barbarian: {
-    items: ["Greataxe", "Handaxe x2", "Explorer's Pack"],
+    items: ["Greataxe", "Handaxe x2", "Explorer's Pack", "Javelins x4"],
     armor: [],
     weapons: [
       { name: "Greataxe", attackBonus: 0, damage: "1d12 slashing" },
       { name: "Handaxe", attackBonus: 0, damage: "1d6 slashing" },
+      { name: "Javelin", attackBonus: 0, damage: "1d6 piercing" },
+    ],
+    armorClassBonus: 2,
+  },
+  Fighter: {
+    items: [
+      "Chain Mail",
+      "Longsword",
+      "Shield",
+      "Dungeoneer's Pack",
+      "Longbow",
+      "Arrows x20",
+    ],
+    armor: ["Chain Mail", "Shield"],
+    weapons: [
+      { name: "Longsword", attackBonus: 0, damage: "1d8 slashing" },
+      { name: "Longbow", attackBonus: 0, damage: "1d8 piercing" },
     ],
     armorClassBonus: 3,
   },
-  Fighter: {
-    items: ["Chain Mail", "Longsword", "Shield", "Dungeoneer's Pack"],
-    armor: ["Chain Mail", "Shield"],
-    weapons: [{ name: "Longsword", attackBonus: 0, damage: "1d8 slashing" }],
-    armorClassBonus: 3,
-  },
   Wizard: {
-    items: ["Spellbook", "Dagger", "Component Pouch", "Scholar's Pack"],
+    items: [
+      "Spellbook",
+      "Dagger x2",
+      "Component Pouch",
+      "Scholar's Pack",
+      "Arcane Focus (Crystal)",
+      "Ink and Quill",
+      "Parchment x10",
+      "Staff",
+    ],
     armor: [],
-    weapons: [{ name: "Dagger", attackBonus: 0, damage: "1d4 piercing" }],
+    weapons: [
+      { name: "Dagger", attackBonus: 0, damage: "1d4 piercing" },
+      { name: "Dagger", attackBonus: 0, damage: "1d4 piercing" },
+      { name: "Staff", attackBonus: 0, damage: "1d6 bludgeoning" },
+    ],
     armorClassBonus: 1,
   },
   Rogue: {
-    items: ["Shortsword", "Rapier", "Thieves' Tools", "Burglar's Pack"],
+    items: [
+      "Shortsword",
+      "Rapier",
+      "Dagger x2",
+      "Shortbow",
+      "Arrows x20",
+      "Thieves' Tools",
+      "Burglar's Pack",
+    ],
     armor: ["Leather Armor"],
     weapons: [
       { name: "Shortsword", attackBonus: 0, damage: "1d6 piercing" },
       { name: "Rapier", attackBonus: 0, damage: "1d8 piercing" },
+      { name: "Dagger", attackBonus: 0, damage: "1d4 piercing" },
+      { name: "Shortbow", attackBonus: 0, damage: "1d6 piercing" },
     ],
+    armorClassBonus: 2,
   },
   Cleric: {
     items: ["Mace", "Scale Mail", "Shield", "Holy Symbol", "Priest's Pack"],
     armor: ["Scale Mail", "Shield"],
-    weapons: [{ name: "Mace", attackBonus: 0, damage: "1d6 bludgeoning" }],
-    armorClassBonus: 2,
+    weapons: [
+      { name: "Mace", attackBonus: 0, damage: "1d6 bludgeoning" },
+      { name: "Light Crossbow", attackBonus: 0, damage: "1d8 piercing" },
+      { name: "Bolts x20", attackBonus: 0, damage: "N/A" },
+    ],
+    armorClassBonus: 3,
   },
   Bard: {
     items: ["Rapier", "Dagger", "Lute", "Entertainer's Pack"],
@@ -674,7 +887,10 @@ const classEquipment = {
     weapons: [
       { name: "Rapier", attackBonus: 0, damage: "1d8 piercing" },
       { name: "Dagger", attackBonus: 0, damage: "1d4 piercing" },
+      { name: "Shortbow", attackBonus: 0, damage: "1d6 piercing" },
+      { name: "Arrows x20", attackBonus: 0, damage: "N/A" },
     ],
+    armorClassBonus: 1,
   },
   Ranger: {
     items: ["Longbow", "Shortsword", "Quiver with Arrows", "Explorer's Pack"],
@@ -682,18 +898,27 @@ const classEquipment = {
     weapons: [
       { name: "Longbow", attackBonus: 0, damage: "1d8 piercing" },
       { name: "Shortsword", attackBonus: 0, damage: "1d6 piercing" },
+      { name: "Shortbow", attackBonus: 0, damage: "1d6 piercing" },
     ],
+    armorClassBonus: 1,
   },
   Druid: {
     items: ["Scimitar", "Wooden Shield", "Druidic Focus", "Explorer's Pack"],
     armor: ["Leather Armor", "Wooden Shield"],
-    weapons: [{ name: "Scimitar", attackBonus: 0, damage: "1d6 slashing" }],
-    armorClassBonus: 1,
+    weapons: [
+      { name: "Scimitar", attackBonus: 0, damage: "1d6 slashing" },
+      { name: "Sling", attackBonus: 0, damage: "1d4 bludgeoning" },
+      { name: "Bullets x20", attackBonus: 0, damage: "N/A" },
+    ],
+    armorClassBonus: 2,
   },
   Paladin: {
     items: ["Longsword", "Shield", "Holy Symbol", "Priest's Pack"],
     armor: ["Chain Mail", "Shield"],
-    weapons: [{ name: "Longsword", attackBonus: 0, damage: "1d8 slashing" }],
+    weapons: [
+      { name: "Longsword", attackBonus: 0, damage: "1d8 slashing" },
+      { name: "Javelin", attackBonus: 0, damage: "1d6 piercing" },
+    ],
     armorClassBonus: 4,
   },
   Artificer: {
@@ -702,6 +927,7 @@ const classEquipment = {
     weapons: [
       { name: "Light Crossbow", attackBonus: 0, damage: "1d8 piercing" },
       { name: "Hammer", attackBonus: 0, damage: "1d4 bludgeoning" },
+      { name: "Dagger", attackBonus: 0, damage: "1d4 piercing" },
     ],
     armorClassBonus: 1,
   },
@@ -711,6 +937,11 @@ const classEquipment = {
     weapons: [
       { name: "Dagger", attackBonus: 0, damage: "1d4 piercing" },
       { name: "Light Crossbow", attackBonus: 0, damage: "1d8 piercing" },
+      {
+        name: "Eldritch Blast (Cantrip)",
+        attackBonus: 0,
+        damage: "1d10 force",
+      },
     ],
     armorClassBonus: 2,
   },
@@ -720,6 +951,7 @@ const classEquipment = {
     weapons: [
       { name: "Light Crossbow", attackBonus: 0, damage: "1d8 piercing" },
       { name: "Dagger", attackBonus: 0, damage: "1d4 piercing" },
+      { name: "Ray of Frost (Cantrip)", attackBonus: 0, damage: "1d8 cold" },
     ],
     armorClassBonus: 1,
   },
@@ -729,6 +961,7 @@ const classEquipment = {
     weapons: [
       { name: "Shortsword", attackBonus: 0, damage: "1d6 piercing" },
       { name: "Dart", attackBonus: 0, damage: "1d4 piercing" },
+      { name: "Quarterstaff", attackBonus: 0, damage: "1d6 bludgeoning" },
     ],
     armorClassBonus: 4,
   },
@@ -1187,6 +1420,10 @@ export default function CharSheet() {
             <th>Description</th>
             <th>Modifier</th>
             <th>Damage</th>
+            <th>Slots</th>
+            <th>Duration</th>
+            <th>Range</th>
+            <th>Concentration</th>
           </tr>
         </thead>
         <tbody>
@@ -1197,12 +1434,14 @@ export default function CharSheet() {
               <td>{spell.spellModifier}</td>
               <td>{spell.damage}</td>
               <td>{spell.slots}</td>
+              <td>{spell.duration}</td>
+              <td>{spell.range}</td>
+              <td>{spell.concentration}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* Racial Abilities Table */}
       {/* Racial Abilities Table */}
       <table className="table">
         <thead>
